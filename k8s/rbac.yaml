@@ -1,0 +1,36 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: student-system-sa
+  namespace: student-system
+  labels:
+    app: student-management-system
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: student-system-role
+  namespace: student-system
+rules:
+- apiGroups: [""]
+  resources: ["configmaps"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: [""]
+  resources: ["secrets"]
+  verbs: ["get"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: student-system-rolebinding
+  namespace: student-system
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: student-system-role
+subjects:
+- kind: ServiceAccount
+  name: student-system-sa
+  namespace: student-system
