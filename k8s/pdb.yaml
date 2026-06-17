@@ -1,0 +1,10 @@
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: student-management-system-pdb
+  namespace: student-system
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: student-management-system
