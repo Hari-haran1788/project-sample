@@ -13,8 +13,7 @@ pipeline {
     environment {
         DOCKER_CREDENTIALS = credentials('docker-credentials')
         KUBECONFIG = credentials('kubeconfig')
-        GIT_REPO = "${env.GIT_URL}"
-        BUILD_TIMESTAMP = sh(script: "date +'%Y%m%d_%H%M%S'", returnStdout: true).trim()
+        // removed BUILD_TIMESTAMP and GIT_REPO sh calls from here (they must run on agent)
     }
     
     stages {
@@ -23,6 +22,10 @@ pipeline {
                 script {
                     echo '========== Checking out code =========='
                     checkout scm
+                    // compute values that require a workspace/agent
+                    env.GIT_REPO = env.GIT_URL
+                    env.BUILD_TIMESTAMP = sh(script: "date +'%Y%m%d_%H%M%S'", returnStdout: true).trim()
+                    echo "GIT_REPO=${env.GIT_REPO}, BUILD_TIMESTAMP=${env.BUILD_TIMESTAMP}"
                 }
             }
         }
@@ -150,7 +153,12 @@ pipeline {
         always {
             script {
                 echo '========== Cleaning up =========='
-                sh 'rm -rf venv || true'
+                // guard the sh with a presence check to avoid MissingContextVariable when no workspace/filepath is available
+                if (env.WORKSPACE) {
+                    sh 'rm -rf venv || true'
+                } else {
+                    echo 'No workspace available; skipping cleanup'
+                }
             }
         }
         
