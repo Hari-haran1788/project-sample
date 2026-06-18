@@ -12,7 +12,6 @@ pipeline {
     
     environment {
         DOCKER_CREDENTIALS = credentials('docker-credentials')
-        KUBECONFIG = credentials('kubeconfig')
         // removed BUILD_TIMESTAMP and GIT_REPO sh calls from here (they must run on agent)
     }
     
